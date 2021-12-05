@@ -1,0 +1,24 @@
+{
+  "name": "giffyjiffy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fqhd/GiffyJiffy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fqhd/GiffyJiffy/issues"
+  },
+  "homepage": "https://github.com/fqhd/GiffyJiffy#readme",
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "node-fetch": "^3.1.0"
+  }
+}
