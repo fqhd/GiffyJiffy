@@ -9,22 +9,22 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
-	switch(message.content){
-		case 'what am i':
-			message.channel.send('You are beautiful ;)');
-		break;
-		case 'gimme cutie':
-			const response = await fetch(`https://g.tenor.com/v1/search?q=cutie&key=${process.env.DISCORD_TOKEN}&limit=32`);
-			const json = await response.json();
-			const index = Math.floor(Math.random() * json.results.length);
-			message.channel.send(json.results[index].url);
-		break;
-		case 'bot stop':
-			console.log('Stopping bot...');
-			await message.channel.send('Stopping bot...');
-			client.destroy();
-		break;
+	const tokens = message.content.split(' ');
+	if(tokens[0] == 'gimme'){
+		send_gif_to_channel(message.channel, tokens[1]);
+	}
+	if(message.content == 'bot stop'){
+		console.log('Stopping bot...');
+		await message.channel.send('Stopping bot...');
+		client.destroy();
 	}
 });
 
-client.login(process.env.TOKEN);
+async function send_gif_to_channel(channel, keyword){
+	const response = await fetch(`https://g.tenor.com/v1/search?q=${keyword}&key=${process.env.DISCORD_KEY}&limit=32`);
+	const json = await response.json();
+	const index = Math.floor(Math.random() * json.results.length);
+	channel.send(json.results[index].url);
+}
+
+client.login(process.env.DISCORD_KEY);
