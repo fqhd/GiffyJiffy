@@ -1,6 +1,6 @@
 import * as DotEnv from 'dotenv';
 import { Client, Intents } from 'discord.js';
-import { commands } from './command_handler.js';
+import { commands_map } from './command_handler.js';
 
 const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 DotEnv.config();
@@ -10,19 +10,24 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
-	const { command, tokens } = split_message_into_command_and_tokens(message);
-	run_command(command, tokens);
+	const { command_name, tokens } = split_message_into_command_and_tokens(message);
+	run_command(command_name, message, tokens);
 });
 
-function run_command(command, tokens){
-	commands[command](tokens);
+function run_command(command_name, message, tokens){
+	const command_function = commands_map[command_name];
+	if(command_function){
+		command_function(tokens, message, client);
+	}
 }
 
 function split_message_into_command_and_tokens(message){
-	const message_split_by_spaces = message.content.split(' ');
+	const tokens = message.content.split(' ');
+	const command_name = tokens[0];
+	tokens.shift();
 	return {
-		command: message_split_by_spaces[0],
-		tokens: message.substring(1),
+		command_name,
+		tokens
 	};
 }
 
