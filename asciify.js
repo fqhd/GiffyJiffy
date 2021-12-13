@@ -14,7 +14,7 @@ export async function asciify(tokens, message, client){
 	const image_resolution_x = pixels.shape.slice()[0];
 	const image_resolution_y = pixels.shape.slice()[1];
 
-	const ascii_sorted_by_brightness = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.';
+	const ascii_sorted_by_brightness = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^\'.';
 
 	const num_ascii_characters = ascii_sorted_by_brightness.length;
 
@@ -47,7 +47,7 @@ export async function asciify(tokens, message, client){
 			const index = Math.floor(arr[y * desired_resolution_x + x] * 68);
 			str += ascii_sorted_by_brightness[index];
 		}
-		second_array.push(str);
+		second_array.push(str + '\n');
 	}
 
 	const f = desired_resolution_y * desired_resolution_x;
@@ -55,10 +55,13 @@ export async function asciify(tokens, message, client){
 	// console.log('calculated ' + r + ' pixels');
 	// console.log('should get ' + f + ' pixels');
 
+	let final_str = '```';
 	for(let i = 0; i < desired_resolution_y; i++){
-		console.log(second_array[i]);
+		final_str += second_array[i];
 	}
+	final_str += '```';
 
+	message.channel.send(final_str);
 
 }
 
