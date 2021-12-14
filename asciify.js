@@ -1,48 +1,84 @@
 import getPixels from 'get-pixels';
 
-// I'm pushing this for now for functionalitys sake, but fuck im tired as hell
-// Tomorrow morning ill clean up this code up first thing
 export async function asciify(tokens, message, client){
-	const url = tokens[0];
+	const { url, resolution } = get_url_and_resolution_from_tokens(tokens);
+	if(check_url_and_resolution(url, resolution, message) == -1){
+		return;
+	}
+
+	const desired_resolution = convert_resolution_string_to_vec(resolution);
+	if(check_desired_resolution(desired_resolution, message) == -1){
+		return;
+	}
+
+	const pixels = await get_pixels_from_url(url);
+	if(check_pixels(pixels, message) == -1){
+		return;
+	}
+	
+	const brightness_values = create_array_of_brightness_values(pixels, desired_resolution);
+
+	const string_array_image = create_array_of_strings_from_brightness_values(brightness_values, desired_resolution);
+
+	const final_string_message = create_final_string_message(string_array_image, desired_resolution);
+
+	message.channel.send(final_string_message);
+}
+
+function get_url_and_resolution_from_tokens(tokens){
+	return {
+		url: tokens[0],
+		resolution: tokens[1],
+	}
+}
+
+function create_final_string_message(string_array_image, desired_resolution){
+	let final_str = '```';
+	for(let i = 0; i < desired_resolution[1]; i++){
+		final_str += string_array_image[i];
+	}
+	final_str += '```';
+	return final_str;
+}
+
+function check_url_and_resolution(url, resolution, message){
 	if(!url){
 		message.channel.send('No url provided');
 		send_usage(message.channel);
-		return;
+		return -1;
 	}
-	if(!tokens[1]){
+	if(!resolution){
 		message.channel.send('No resulution provided');
 		send_usage(message.channel);
-		return;
+		return -1;
 	}
-	const desired_resolution_x = parseInt(tokens[1].split('x')[0]);
-	const desired_resolution_y = parseInt(tokens[1].split('x')[1]);
-	if(!desired_resolution_x || !desired_resolution_y){
-		message.channel.send('Incorrect resolution format');
-		send_usage(message.channel);
-		return;
-	}
+	return 0;
+}
 
-	const pixels = await get_image_pixels(url).catch(() => {
-		message.channel.send('Bad link');
-	});
-	if(!pixels){
-		send_usage(message.channel);
-		return;
-	}
-
-	const image_resolution_x = pixels.shape.slice()[0];
-	const image_resolution_y = pixels.shape.slice()[1];
-
+function create_array_of_strings_from_brightness_values(brightness_values, desired_resolution){
 	const ascii_sorted_by_brightness = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^\'.';
-
 	const num_ascii_characters = ascii_sorted_by_brightness.length;
+	const strings = [];
+	for(let y = 0; y < desired_resolution[1]; y++){
+		let current_line = "";
+		for(let x = 0; x < desired_resolution[0]; x++){
+			const index = Math.floor(brightness_values[y * desired_resolution[0] + x] * (num_ascii_characters - 1));
+			current_line += ascii_sorted_by_brightness[index];
+		}
+		strings.push(current_line + '\n');
+	}
+	return strings;
+}
 
-	const x_step = Math.floor(image_resolution_x / desired_resolution_x);
-	const y_step = Math.floor(image_resolution_y / desired_resolution_y);
+function create_array_of_brightness_values(pixels, desired_resolution){
+	const { image_resolution_x, image_resolution_y } = get_image_resolution_from_pixels(pixels);
+
+	const x_step = Math.floor(image_resolution_x / desired_resolution[0]);
+	const y_step = Math.floor(image_resolution_y / desired_resolution[1]);
 	const arr = [];
 
-	for(let y = 0; y < desired_resolution_y; y++){
-		for(let x = 0; x < desired_resolution_x; x++){
+	for(let y = 0; y < desired_resolution[1]; y++){
+		for(let x = 0; x < desired_resolution[0]; x++){
 			let total = 0;
 			for(let cy = 0; cy < y_step; cy++){
 				for(let cx = 0; cx < x_step; cx++){
@@ -57,32 +93,39 @@ export async function asciify(tokens, message, client){
 		}
 	}
 
-	let r = 0;
-	const second_array = [];
-	for(let y = 0; y < desired_resolution_y; y++){
-		let str = "";
-		for(let x = 0; x < desired_resolution_x; x++){
-			r++;
-			const index = Math.floor(arr[y * desired_resolution_x + x] * (num_ascii_characters - 1));
-			str += ascii_sorted_by_brightness[index];
-		}
-		second_array.push(str + '\n');
-	}
-
-	const f = desired_resolution_y * desired_resolution_x;
-
-	// console.log('calculated ' + r + ' pixels');
-	// console.log('should get ' + f + ' pixels');
-
-	let final_str = '```';
-	for(let i = 0; i < desired_resolution_y; i++){
-		final_str += second_array[i];
-	}
-	final_str += '```';
-
-	message.channel.send(final_str);
+	return arr;
 }
 
+function get_image_resolution_from_pixels(pixels){
+	return {
+		image_resolution_x: pixels.shape.slice()[0],
+		image_resolution_y: pixels.shape.slice()[1],
+	}
+}
+
+function check_desired_resolution(desired_resolution, message){
+	if(!desired_resolution[0] || !desired_resolution[1]){
+		message.channel.send('Incorrect resolution format');
+		send_usage(message.channel);
+		return -1;
+	}
+	return 0;
+}
+
+async function get_pixels_from_url(url){
+	const pixels = await get_image_pixels(url).catch(() => {
+		// Empty catch statement to not block the flow of the program
+	});
+	return pixels;
+}
+
+function check_pixels(pixels, message){
+	if(!pixels){
+		message.channel.send('Bad link');
+		send_usage(message.channel);
+		return -1;
+	}
+}
 
 function get_image_pixels(url){
 	return new Promise((resolve, reject) => {
@@ -93,6 +136,12 @@ function get_image_pixels(url){
 			resolve(pixels);
 		});
 	});
+}
+
+function convert_resolution_string_to_vec(resolution){
+	const x = parseInt(resolution.split('x')[0]);
+	const y = parseInt(resolution.split('x')[1]);
+	return [x, y];
 }
 
 function send_usage(channel){
