@@ -4,13 +4,32 @@ import getPixels from 'get-pixels';
 // Tomorrow morning ill clean up this code up first thing
 export async function asciify(tokens, message, client){
 	const url = tokens[0];
+	if(!url){
+		message.channel.send('No url provided');
+		send_usage(message.channel);
+		return;
+	}
+	if(!tokens[1]){
+		message.channel.send('No resulution provided');
+		send_usage(message.channel);
+		return;
+	}
 	const desired_resolution_x = parseInt(tokens[1].split('x')[0]);
 	const desired_resolution_y = parseInt(tokens[1].split('x')[1]);
+	if(!desired_resolution_x || !desired_resolution_y){
+		message.channel.send('Incorrect resolution format');
+		send_usage(message.channel);
+		return;
+	}
 
-	console.log('desired resolution x: ' + desired_resolution_x);
-	console.log('desired resolution y: ' + desired_resolution_y);
+	const pixels = await get_image_pixels(url).catch(() => {
+		message.channel.send('Bad link');
+	});
+	if(!pixels){
+		send_usage(message.channel);
+		return;
+	}
 
-	const pixels = await get_image_pixels(url);
 	const image_resolution_x = pixels.shape.slice()[0];
 	const image_resolution_y = pixels.shape.slice()[1];
 
@@ -34,7 +53,7 @@ export async function asciify(tokens, message, client){
 					total += brightness/765;
 				}
 			}
-			arr.push(total / (y_step * x_step));
+			arr.push(1 - (total / (y_step * x_step)));
 		}
 	}
 
@@ -44,7 +63,7 @@ export async function asciify(tokens, message, client){
 		let str = "";
 		for(let x = 0; x < desired_resolution_x; x++){
 			r++;
-			const index = Math.floor(arr[y * desired_resolution_x + x] * 68);
+			const index = Math.floor(arr[y * desired_resolution_x + x] * (num_ascii_characters - 1));
 			str += ascii_sorted_by_brightness[index];
 		}
 		second_array.push(str + '\n');
@@ -62,7 +81,6 @@ export async function asciify(tokens, message, client){
 	final_str += '```';
 
 	message.channel.send(final_str);
-
 }
 
 
@@ -77,3 +95,11 @@ function get_image_pixels(url){
 	});
 }
 
+function send_usage(channel){
+	let str = '';
+	str += 'Usage: asciify <link> <resolution>\n';
+	str += 'Example: asciify <https://i.imgur.com/SltXmSk.jpeg> 4x4\n';
+	str += 'Note: Larger images may take longer to process\n';
+	str += 'Note: Resolution must be kinda small\n';
+	channel.send(str);
+}
