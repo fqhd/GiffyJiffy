@@ -6,16 +6,16 @@ export async function asciify(tokens, message, client){
 		return;
 	}
 
-	const desired_resolution = convert_resolution_string_to_vec(resolution);
-	if(check_desired_resolution(desired_resolution, message) == -1){
-		return;
-	}
-
 	const pixels = await get_pixels_from_url(url);
 	if(check_pixels(pixels, message) == -1){
 		return;
 	}
-	
+
+	const desired_resolution = convert_resolution_string_to_vec(resolution);
+	if(check_desired_resolution(desired_resolution, pixels, message) == -1){
+		return;
+	}
+
 	const brightness_values = create_array_of_brightness_values(pixels, desired_resolution);
 
 	const string_array_image = create_array_of_strings_from_brightness_values(brightness_values, desired_resolution);
@@ -35,7 +35,8 @@ function get_url_and_resolution_from_tokens(tokens){
 function create_final_string_message(string_array_image, desired_resolution){
 	let final_str = '```';
 	for(let i = 0; i < desired_resolution[1]; i++){
-		final_str += string_array_image[i];
+		const line = string_array_image[i] + '\n';
+		final_str += line;
 	}
 	final_str += '```';
 	return final_str;
@@ -56,19 +57,26 @@ function check_url_and_resolution(url, resolution, message){
 }
 
 function create_array_of_strings_from_brightness_values(brightness_values, desired_resolution){
-	const ascii_sorted_by_brightness = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^\'.';
+	const { arr, highest, lowest } = brightness_values;
+	const ascii_sorted_by_brightness = '#@%+:.';
 	const num_ascii_characters = ascii_sorted_by_brightness.length;
 	const strings = [];
 	for(let y = 0; y < desired_resolution[1]; y++){
 		let current_line = "";
 		for(let x = 0; x < desired_resolution[0]; x++){
-			const index = Math.floor(brightness_values[y * desired_resolution[0] + x] * (num_ascii_characters - 1));
-			current_line += ascii_sorted_by_brightness[index];
+			const brightness = arr[y * desired_resolution[0] + x];
+			const mapped_brightness = map(brightness, lowest, highest, 0, 1);
+			current_line += ascii_sorted_by_brightness[Math.floor(mapped_brightness * (num_ascii_characters - 1))];
 		}
-		strings.push(current_line + '\n');
+		strings.push(current_line);
 	}
 	return strings;
 }
+
+// Copied this tiny func from: https://www.arduino.cc/reference/en/language/functions/math/map/
+function map(x, in_min, in_max, out_min, out_max) {
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  }
 
 function create_array_of_brightness_values(pixels, desired_resolution){
 	const { image_resolution_x, image_resolution_y } = get_image_resolution_from_pixels(pixels);
@@ -76,7 +84,9 @@ function create_array_of_brightness_values(pixels, desired_resolution){
 	const x_step = Math.floor(image_resolution_x / desired_resolution[0]);
 	const y_step = Math.floor(image_resolution_y / desired_resolution[1]);
 	const arr = [];
-
+	let highest = 0;
+	let lowest = 1;
+	
 	for(let y = 0; y < desired_resolution[1]; y++){
 		for(let x = 0; x < desired_resolution[0]; x++){
 			let total = 0;
@@ -86,14 +96,25 @@ function create_array_of_brightness_values(pixels, desired_resolution){
 					const g_value = pixels.get(x*x_step+cx, y*y_step+cy, 1);
 					const b_value = pixels.get(x*x_step+cx, y*y_step+cy, 2);
 					const brightness = r_value + g_value + b_value;
-					total += brightness/765;
+					total += brightness / 765;
 				}
 			}
-			arr.push(1 - (total / (y_step * x_step)));
+			const value = 1 - (total / (y_step * x_step));
+			if(value > highest){
+				highest = value;
+			}
+			if(value < lowest){
+				lowest = value;
+			}
+			arr.push(value);
 		}
 	}
 
-	return arr;
+	return {
+		highest,
+		lowest,
+		arr
+	};
 }
 
 function get_image_resolution_from_pixels(pixels){
@@ -103,13 +124,46 @@ function get_image_resolution_from_pixels(pixels){
 	}
 }
 
-function check_desired_resolution(desired_resolution, message){
-	if(!desired_resolution[0] || !desired_resolution[1]){
+function check_desired_resolution(desired_resolution, pixels, message){
+	const { image_resolution_x, image_resolution_y } =  get_image_resolution_from_pixels(pixels);
+	if(desired_resolution_is_undefined(desired_resolution)){
 		message.channel.send('Incorrect resolution format');
 		send_usage(message.channel);
 		return -1;
 	}
+
+	if(desired_resolution_is_too_big(desired_resolution)){
+		message.channel.send('Resolution is too large');
+		send_usage(message.channel);
+		return -1;
+	}
+
+	if(desired_resolution_is_greater_than_original_image_size(desired_resolution, image_resolution_x, image_resolution_y)){
+		message.channel.send('Resolution cannot be larger than original image size');
+		send_usage(message.channel);
+		return -1;
+	}
+	
 	return 0;
+}
+
+function desired_resolution_is_too_big(desired_resolution){
+	const final_message_size = calc_str_length_based_on_resolution(desired_resolution);
+	const MAX_MESSAGE_LENGTH = 2000;
+	return final_message_size > MAX_MESSAGE_LENGTH;
+}
+
+function calc_str_length_based_on_resolution(res){
+	// We add 1 to the desired resolution x value for the end of line character
+	return (res[0]+1) * res[1] + 6;
+}
+
+function desired_resolution_is_undefined(desired_resolution){
+	return !desired_resolution[0] || !desired_resolution[1];
+}
+
+function desired_resolution_is_greater_than_original_image_size(desired_resolution, image_resolution_x, image_resolution_y){
+	return desired_resolution[0] > image_resolution_x || desired_resolution[1] > image_resolution_y;
 }
 
 async function get_pixels_from_url(url){
