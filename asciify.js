@@ -58,7 +58,7 @@ function check_url_and_resolution(url, resolution, message){
 
 function create_array_of_strings_from_brightness_values(brightness_values, desired_resolution){
 	const { arr, highest, lowest } = brightness_values;
-	const ascii_sorted_by_brightness = '#@%+:.';
+	const ascii_sorted_by_brightness = '#@&(/*,.';
 	const num_ascii_characters = ascii_sorted_by_brightness.length;
 	const strings = [];
 	for(let y = 0; y < desired_resolution[1]; y++){
