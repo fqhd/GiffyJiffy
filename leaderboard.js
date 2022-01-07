@@ -37,7 +37,7 @@ export async function update_leaderboard(tokens, message, client){
 	// Adding date and time to leaderboard
 	leaderboardString += "\n";
 
-	leaderboardString += "Next Updated: " + new Date(new Date().getTime() + 5*60*1000);
+	leaderboardString += "Next Update: " + new Date(new Date().getTime() + 5*60*1000);
 
 	// Getting channel, leaderboard message, and leaderboard log message
 	const channel = await client.channels.fetch("831148754181816351");
