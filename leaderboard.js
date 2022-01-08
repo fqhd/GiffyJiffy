@@ -1,26 +1,79 @@
 import fetch from 'node-fetch';
 let is_active = false;
 
-export async function update_leaderboard(tokens, message, client){
+const players = [
+	{
+		name: 'Fahd',
+		id: 'PANV_xgn3lYQXsNSdCXViBhtIlMvzjvJnku-jdLHmCuFj0mF',
+		region: 'euw1',
+	},
+	{
+		name: 'Amine',
+		id: '1FrqsJSVzGG4BxnEay4SjTK5CAxW6ssZAJCQJ90nNyFM0XY',
+		region: 'na1',
+	},
+	{
+		name: 'Omar',
+		id: 'o60Asiz2h1YejtyMF1SIg-QAz0RQxvNltcmGmRZcbMfrtDQW',
+		region: 'euw1',
+	},
+	{
+		name: 'Mehdi',
+		id: 'FoEoLD2s3QuHi7iggV_oSGxelhdgi7lzj-dgiIOKfamk0lBQ',
+		region: 'euw1',
+	},
+	{
+		name: 'Samar',
+		id: 'EXpLqDc2TG9hYALDdbPzBkVsr7y54UJPMeoahW7x3H6Bms1C',
+		region: 'euw1',
+	},
+	{
+		name: 'Yahia',
+		id: 'fIrlYQ9O0dE9uAtpRRMBx2Z66bhE82FAhgGvjjx-ZxQGYihW',
+		region: 'euw1',
+	},
+	{
+		name: 'Sara',
+		id: 'i_WpCTFvx1feyR29DcD13Fl2b2bvffLpb8bI1-eurOLxLFiC',
+		region: 'euw1',
+	},
+	{
+		name: 'Axed',
+		id: '5ZxZUR3iPXMjbhjlNSY2d5ixKYYtFJ19Q89YDafTyIPQ0sJK',
+		region: 'euw1',
+	},
+	{
+		name: 'Imane',
+		id: 'Uszb-967hvrhwyGzGe_tnsbh6STIDGn-Bi-X1dm_DfaRROE8',
+		region: 'na1',
+	},
+	{
+		name: 'Jihwan',
+		id: 'Dw5v-dla666TOJ8PX8oRGJ9nEOWaaopjsb9eO4_H8fM893Vu',
+		region: 'euw1',
+	},
+];
+
+export async function start_leaderboard(tokens, message, client){
 	if(!is_active){
 		is_active = true;
 	}else{
 		message.channel.send('Leaderboard is already active');
 		return;
 	}
+	await update_leaderboard(tokens, message, client);
+}
 
-	const names = ["Fahd", "Amine", "Omar", "Mehdi", "Samar", "Yahia", "Sarah", "Axed", "Imane", "Jihwan"];
-	const usernames = ["PANV_xgn3lYQXsNSdCXViBhtIlMvzjvJnku-jdLHmCuFj0mF", "hDrk5vOdOW9AoTzs6WOvlb5Orctn_dMtsfgvzYPqxdtsJJmL", "o60Asiz2h1YejtyMF1SIg-QAz0RQxvNltcmGmRZcbMfrtDQW", "FoEoLD2s3QuHi7iggV_oSGxelhdgi7lzj-dgiIOKfamk0lBQ", "EXpLqDc2TG9hYALDdbPzBkVsr7y54UJPMeoahW7x3H6Bms1C", "fIrlYQ9O0dE9uAtpRRMBx2Z66bhE82FAhgGvjjx-ZxQGYihW", "i_WpCTFvx1feyR29DcD13Fl2b2bvffLpb8bI1-eurOLxLFiC", "5ZxZUR3iPXMjbhjlNSY2d5ixKYYtFJ19Q89YDafTyIPQ0sJK", "Uszb-967hvrhwyGzGe_tnsbh6STIDGn-Bi-X1dm_DfaRROE8", "Dw5v-dla666TOJ8PX8oRGJ9nEOWaaopjsb9eO4_H8fM893Vu"];
-
+async function update_leaderboard(tokens, message, client){
 	const leaderboardArray = [];
 	let leaderboardString = "Wadup laaadz, fucked up season, but it's fiiine we shilliiiiiin(if you're not on the leaderboard it's cuz u ain't ranked yet l0ser)\n\n";
 
 	// Adding ranks to leaderboard
-	for(let i = 0; i < names.length; i++){
-		const player = await getRank(usernames[i]);
+	for(let i = 0; i < players.length; i++){
+		const player = await getRank(players[i].id, players[i].region);
 		if(player){
 			const mmr = rankToMMR(player.tier, player.rank, player.lp);
-			const name = names[i];
+			const name = players[i].name;
 			leaderboardArray.push({ name, player, mmr });
 		}
 	}
@@ -44,7 +97,9 @@ export async function update_leaderboard(tokens, message, client){
 	const leaderboard_message = await channel.messages.fetch('925875313680990279');
 	leaderboard_message.edit(leaderboardString);
 
-	setTimeout(update_leaderboard, 1000 * 60 * 5, tokens, message, client); // Call this function in 5 minutes
+	setTimeout(async () => {
+		await update_leaderboard(tokens, message, client);
+	}, 1000 * 60 * 5);
 }
 
 function compare(a, b){
@@ -102,10 +157,8 @@ function rankToMMR(tier, rank, lp){
 	return number;
 }
 
-async function getRank(puuid){
-	let region = (puuid == "Uszb-967hvrhwyGzGe_tnsbh6STIDGn-Bi-X1dm_DfaRROE8") ? "na1" : "euw1";
-
-	var response = await fetch("https://" + region + ".api.riotgames.com/lol/league/v4/entries/by-summoner/" + puuid + "?api_key=" + process.env.RIOT_KEY).catch(err => console.log(err));
+async function getRank(id, region){
+	var response = await fetch("https://" + region + ".api.riotgames.com/lol/league/v4/entries/by-summoner/" + id + "?api_key=" + process.env.RIOT_KEY).catch(err => console.log(err));
 	var data = await response.json().catch(err => console.log(err));
 	if(response.status != 200){
 		console.log("Reponse failed with status code: " + response.status);
