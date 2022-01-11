@@ -52,6 +52,11 @@ const players = [
 		id: 'Dw5v-dla666TOJ8PX8oRGJ9nEOWaaopjsb9eO4_H8fM893Vu',
 		region: 'euw1',
 	},
+	{
+		name: 'Zein',
+		id: 'kxfte62HDuZ2n5hUhRWygP0RmyKDNCDHRGpZ-sD1_X0FaOOC',
+		region: 'euw1',
+	},
 ];
 
 export async function start_leaderboard(tokens, message, client){
