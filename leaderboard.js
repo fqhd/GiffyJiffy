@@ -164,7 +164,13 @@ function rankToMMR(tier, rank, lp){
 
 async function getRank(id, region){
 	var response = await fetch("https://" + region + ".api.riotgames.com/lol/league/v4/entries/by-summoner/" + id + "?api_key=" + process.env.RIOT_KEY).catch(err => console.log(err));
+	if(!response){
+		return;
+	}
 	var data = await response.json().catch(err => console.log(err));
+	if(!data){
+		return;
+	}
 	if(response.status != 200){
 		console.log("Reponse failed with status code: " + response.status);
 		return null;
