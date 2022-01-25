@@ -57,6 +57,11 @@ const players = [
 		id: 'kxfte62HDuZ2n5hUhRWygP0RmyKDNCDHRGpZ-sD1_X0FaOOC',
 		region: 'euw1',
 	},
+	{
+		name: 'Chakib',
+		id: '5-Xqb7R6I7ZV9fbpmknZpUbZBfCTVRx36CEKfzZk3jqd0DX9P9Q826fOtQ',
+		region: 'na1',
+	},
 ];
 
 export async function start_leaderboard(tokens, message, client){
