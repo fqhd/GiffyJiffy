@@ -21,19 +21,7 @@ async function stop_bot(message, client){
 }
 
 function send_funny_stop_message(channel){
-	const verbs = ['Fucking', 'Chocking on', 'Sucking', 'Fisting', 'Eating'];
-	const names = ['sister', 'mother', 'brother', 'father', 'cousin'];
-	const nouns = ['pussy', 'dick', 'ass', 'butt', 'boobs', 'tits', 'face', 'ding-dong'];
-	const name_adjective = ['fucking', 'big fat', 'retarded', 'autistic', 'hot', 'hot ass', 'booby', 'sexy', 'naughty', 'clit'];
-	const nouns_adjective = ['fucking', 'fat fukin', 'fat fucking', 'deep', 'tight'];
-
-	const random_verb = get_random_element(verbs);
-	const random_name = get_random_element(names);
-	const random_noun = get_random_element(nouns);
-	const random_name_adjective = get_random_element(name_adjective);
-	const random_noun_adjective = get_random_element(nouns_adjective);
-
-	channel.send(`Stop what? ${random_verb} your ${random_name_adjective} ${random_name}'s ${random_noun_adjective} ${random_noun}?`);
+	channel.send('Stop what?');
 }
 
 function get_random_element(arr){
