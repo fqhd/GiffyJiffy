@@ -55,8 +55,25 @@ const players = [
 	}
 ];
 
-export async function update_name(old_ign, new_ign){
-	// TODO: Make this function update the element in players that has the old_ign wi the new_ign
+export async function update_name(tokens, message, client){
+	let old_ign = tokens[0];
+	let new_ign = tokens[1];
+
+	old_ign = old_ign.replace('_', ' ');
+	new_ign = new_ign.replace('_', ' ');
+
+	let success = false;
+	players.forEach(player => {
+		if(player.ign == old_ign){
+			success = true;
+			player.ign = new_ign;
+		}
+	});
+	if(success){
+		message.channel.send('Updated!');
+	}else{
+		message.channel.send('Couldn\'nt find user with ign: ' + old_ign);
+	}
 }
 
 export async function start_leaderboard(tokens, message, client){
