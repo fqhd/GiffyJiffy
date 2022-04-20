@@ -1,68 +1,63 @@
 import fetch from 'node-fetch';
 let is_active = false;
+const TIMEOUT = 60;
 
 const players = [
 	{
 		name: 'Fahd',
-		id: 'PANV_xgn3lYQXsNSdCXViBhtIlMvzjvJnku-jdLHmCuFj0mF',
+		ign: 'tobey quagmire',
 		region: 'euw1',
 	},
 	{
 		name: 'Amine',
-		id: '1FrqsJSVzGG4BxnEay4SjTK5CAxW6ssZAJCQJ90nNyFM0XY',
+		ign: 'Rona Season Bois',
 		region: 'na1',
 	},
 	{
 		name: 'Omar',
-		id: 'o60Asiz2h1YejtyMF1SIg-QAz0RQxvNltcmGmRZcbMfrtDQW',
-		region: 'euw1',
-	},
-	{
-		name: 'Mehdi',
-		id: 'FoEoLD2s3QuHi7iggV_oSGxelhdgi7lzj-dgiIOKfamk0lBQ',
-		region: 'euw1',
-	},
-	{
-		name: 'Samar',
-		id: 'EXpLqDc2TG9hYALDdbPzBkVsr7y54UJPMeoahW7x3H6Bms1C',
-		region: 'euw1',
-	},
-	{
-		name: 'Yahia',
-		id: 'fIrlYQ9O0dE9uAtpRRMBx2Z66bhE82FAhgGvjjx-ZxQGYihW',
-		region: 'euw1',
-	},
-	{
-		name: 'Sara',
-		id: 'i_WpCTFvx1feyR29DcD13Fl2b2bvffLpb8bI1-eurOLxLFiC',
-		region: 'euw1',
-	},
-	{
-		name: 'Axed',
-		id: '5ZxZUR3iPXMjbhjlNSY2d5ixKYYtFJ19Q89YDafTyIPQ0sJK',
-		region: 'euw1',
-	},
-	{
-		name: 'Imane',
-		id: 'Uszb-967hvrhwyGzGe_tnsbh6STIDGn-Bi-X1dm_DfaRROE8',
+		ign: 'tobey quagmire',
 		region: 'na1',
 	},
 	{
-		name: 'Jihwan',
-		id: 'Dw5v-dla666TOJ8PX8oRGJ9nEOWaaopjsb9eO4_H8fM893Vu',
+		name: 'Mehdi(NA)',
+		ign: 'EverlastingMoon',
+		region: 'na1',
+	},
+	{
+		name: 'Mehdi(EUW)',
+		ign: 'EndlessStarlight',
 		region: 'euw1',
 	},
 	{
 		name: 'Zein',
-		id: 'kxfte62HDuZ2n5hUhRWygP0RmyKDNCDHRGpZ-sD1_X0FaOOC',
+		ign: 'Zeineldines',	
 		region: 'euw1',
 	},
 	{
-		name: 'Chakib',
-		id: '5-Xqb7R6I7ZV9fbpmknZpUbZBfCTVRx36CEKfzZk3jqd0DX9P9Q826fOtQ',
+		name: 'Axed',
+		ign: 'Llerena',
+		region: 'euw1',
+	},
+	{
+		name: 'Samar',
+		ign: 'samar',
+		region: 'euw1',
+	},
+	{
+		name: 'Imane',
+		ign: 'PetitCuCu',
 		region: 'na1',
 	},
+	{
+		name: 'Jihwan',
+		ign: 'F',
+		region: 'euw1',
+	}
 ];
+
+export async function update_name(old_ign, new_ign){
+	// TODO: Make this function update the element in players that has the old_ign wi the new_ign
+}
 
 export async function start_leaderboard(tokens, message, client){
 	if(!is_active){
@@ -74,13 +69,36 @@ export async function start_leaderboard(tokens, message, client){
 	await update_leaderboard(tokens, message, client);
 }
 
+function rawAPICall(url){
+    return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+           const data = await fetch(url).catch(err => reject(err));
+           resolve(data);
+        }, TIMEOUT);
+    });
+}
+
+async function apiCall(url){
+	let badData = false;
+	while(true){
+		badData = false;
+		const response = await rawAPICall(url).catch(err => {
+			badData = true;
+			console.log(err);
+		});
+		if(!badData){
+			return response;
+		}
+	}
+}
+
 async function update_leaderboard(tokens, message, client){
 	const leaderboardArray = [];
 	let leaderboardString = "Wadup laaadz, fucked up season, but it's fiiine we shilliiiiiin(if you're not on the leaderboard it's cuz u ain't ranked yet l0ser)\n\n";
 
 	// Adding ranks to leaderboard
 	for(let i = 0; i < players.length; i++){
-		const player = await getRank(players[i].id, players[i].region);
+		const player = await getRank(players[i].ign, players[i].region);
 		if(player){
 			const mmr = rankToMMR(player.tier, player.rank, player.lp);
 			const name = players[i].name;
@@ -167,12 +185,14 @@ function rankToMMR(tier, rank, lp){
 	return number;
 }
 
-async function getRank(id, region){
-	var response = await fetch("https://" + region + ".api.riotgames.com/lol/league/v4/entries/by-summoner/" + id + "?api_key=" + process.env.RIOT_KEY).catch(err => console.log(err));
-	if(!response){
+async function getRank(ign, region){
+	var idResponse = await apiCall("https://" + region + ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + ign + "?api_key=" + process.env.RIOT_KEY).catch(err => console.log(err));
+	if(!idResponse){
 		return;
 	}
-	var data = await response.json().catch(err => console.log(err));
+	const idData = await idResponse.json().catch(err => console.log(err));
+	const response = await apiCall('https://' + region + '.api.riotgames.com/lol/league/v4/entries/by-summoner/' + idData.id + '?api_key=' + process.env.RIOT_KEY).catch(err => console.log(err));
+	const data = await response.json();
 	if(!data){
 		return;
 	}
