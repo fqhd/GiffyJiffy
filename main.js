@@ -31,4 +31,4 @@ function split_message_into_command_and_tokens(message){
 	};
 }
 
-client.login(process.env.DISCORD_KEY);
+client.login(process.env.DISCORD_TOKEN);
