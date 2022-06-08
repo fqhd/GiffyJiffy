@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-let is_active = false;
 const TIMEOUT = 60;
 
 const players = [
@@ -47,44 +46,8 @@ const players = [
 		name: 'Imane',
 		ign: 'PetitCuCu',
 		region: 'na1',
-	},
-	{
-		name: 'Jihwan',
-		ign: 'F',
-		region: 'euw1',
 	}
 ];
-
-export async function update_name(tokens, message, client){
-	let old_ign = tokens[0];
-	let new_ign = tokens[1];
-
-	old_ign = old_ign.replace('_', ' ');
-	new_ign = new_ign.replace('_', ' ');
-
-	let success = false;
-	players.forEach(player => {
-		if(player.ign == old_ign){
-			success = true;
-			player.ign = new_ign;
-		}
-	});
-	if(success){
-		message.channel.send('Updated!');
-	}else{
-		message.channel.send('Couldn\'nt find user with ign: ' + old_ign);
-	}
-}
-
-export async function start_leaderboard(tokens, message, client){
-	if(!is_active){
-		is_active = true;
-	}else{
-		message.channel.send('Leaderboard is already active');
-		return;
-	}
-	await update_leaderboard(tokens, message, client);
-}
 
 function rawAPICall(url){
     return new Promise((resolve, reject) => {
@@ -109,9 +72,16 @@ async function apiCall(url){
 	}
 }
 
-async function update_leaderboard(tokens, message, client){
+function toMinutes(m){
+	if(m < 10){
+		return "0" + m;
+	}
+	return m;
+}
+
+export async function update_leaderboard(tokens, message, client){
 	const leaderboardArray = [];
-	let leaderboardString = "Wadup laaadz, fucked up season, but it's fiiine we shilliiiiiin(if you're not on the leaderboard it's cuz u ain't ranked yet l0ser)\n\n";
+	let leaderboardString = "Hey everyone, Fahd here. First of all I'd like to wish everyone an awesome summer and good luck to those who still have exams 💪. Lots of updates to the rift recently with the new skins and huge number update. Lots of buffs and nerfs too. And for those still on the grind, keep up the good work!\n\n";
 
 	// Adding ranks to leaderboard
 	for(let i = 0; i < players.length; i++){
@@ -135,16 +105,16 @@ async function update_leaderboard(tokens, message, client){
 	// Adding date and time to leaderboard
 	leaderboardString += "\n";
 
-	leaderboardString += "Next Update: " + new Date(new Date().getTime() + 5*60*1000);
+	const time = new Date(new Date().getTime() + 5*60*1000);
+
+	leaderboardString += "Next Update: " + time.getHours() + ":" + toMinutes(time.getMinutes());
 
 	// Getting channel, leaderboard message, and leaderboard log message
 	const channel = await client.channels.fetch("831148754181816351");
-	const leaderboard_message = await channel.messages.fetch('925875313680990279');
+	const leaderboard_message = await channel.messages.fetch('984085447997276190');
 	leaderboard_message.edit(leaderboardString);
 
-	setTimeout(async () => {
-		await update_leaderboard(tokens, message, client);
-	}, 1000 * 60 * 5);
+	update_leaderboard(tokens, message, client);
 }
 
 function compare(a, b){
