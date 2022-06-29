@@ -25,14 +25,13 @@ const loreMap = {
 };
 
 function parseToken(t){
-	let lowerCase = t.toLowerCase();
-	lowerCase[0] = lowerCase[0].toUpperCase();
-	return lowerCase;
+	let lowerCase = t.slice(1).toLowerCase();
+	return t[0].toUpperCase() + lowerCase;
 }
 
 export function lore(tokens, message, client) {
   const champ = parseToken(tokens[0]);
-  const loreMessage = loreMap[keyword];
+  const loreMessage = loreMap[champ];
   if (loreMessage) {
     message.channel.send(loreMessage);
   } else {
