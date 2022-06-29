@@ -19,11 +19,14 @@ const loreMap = {
     "Nemika also referred to as Nems or Nemi, is the chillest person in the league of legends community. Never flames in chat, although sometimes plays clash with the squad. Relatively new member of the server that we shall welcome with open arms <3.",
   Dennis:
     "Previouslly referred to as Asked, or Axed for short, Dennis has the tendency to speak quickly and quietly. Makes quick straight to the point phrases to communicate with his team from the island of toplane which is necessary due to the modern goldfish attention span.",
+  Yahia:
+    "This meme lives inside a mosque. Sometimes I wonder if it's his father doing the Adan. He will quietly int your games and leave two of your teammates(Fahd and Chakib) argue their ass off over a dumb play *he* caused. However, he is still a super fun person to hang out with. In conclusion, if you ever get the chance to play with Yahia, don't.",
+  Jihwan: "Samsung",
 };
 
 export function lore(tokens, message, client) {
   const champ = tokens[0];
-	const loreMessage = loreMap[tokens[0]];
+  const loreMessage = loreMap[tokens[0]];
   if (loreMessage) {
     message.channel.send(loreMessage);
   } else {
