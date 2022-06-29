@@ -102,19 +102,10 @@ export async function update_leaderboard(tokens, message, client){
 		leaderboardString += `${i+1}) ${leaderboardArray[i].name} ${player.tier} ${player.rank} ${player.lp} LP\n`;
 	}
 
-	// Adding date and time to leaderboard
-	leaderboardString += "\n";
-
-	const time = new Date(new Date().getTime() + 5*60*1000);
-
-	leaderboardString += "Next Update: " + time.getHours() + ":" + toMinutes(time.getMinutes());
-
-	// Getting channel, leaderboard message, and leaderboard log message
+	// Updating the leaderboard message
 	const channel = await client.channels.fetch("831148754181816351");
 	const leaderboard_message = await channel.messages.fetch('984085447997276190');
 	leaderboard_message.edit(leaderboardString);
-
-	update_leaderboard(tokens, message, client);
 }
 
 function compare(a, b){

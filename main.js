@@ -1,14 +1,12 @@
 import * as DotEnv from 'dotenv';
 import { Client, Intents } from 'discord.js';
 import { commands_map } from './command_handler.js';
-import { update_leaderboard } from './leaderboard.js';
 
 const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 DotEnv.config();
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
-	update_leaderboard(null, null, client);
 });
 
 client.on('messageCreate', async message => {
