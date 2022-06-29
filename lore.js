@@ -24,9 +24,15 @@ const loreMap = {
   Jihwan: "Samsung",
 };
 
+function parseToken(t){
+	let lowerCase = t.toLowerCase();
+	lowerCase[0] = lowerCase[0].toUpperCase();
+	return lowerCase;
+}
+
 export function lore(tokens, message, client) {
-  const champ = tokens[0];
-  const loreMessage = loreMap[tokens[0]];
+  const champ = parseToken(tokens[0]);
+  const loreMessage = loreMap[keyword];
   if (loreMessage) {
     message.channel.send(loreMessage);
   } else {
