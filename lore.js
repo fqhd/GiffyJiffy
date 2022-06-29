@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 const loreMap = {
   Fahd: "Fahd is a one of the most sacred NPCs of league of legends. Notorious for his inting skills and dogshit mechanics, he is able consistently tilt amine regardless of what he does in the game, if he split pushes, amine rages why he didn't tp, and when he tps, amine flames his tp. This never ending cycle of toxicicity continues between these individuals who will never make it past plat 3.",
   Amine:
-    "One of the most delusional players in the league of legends playerbase. He challenges the limits of toxicity. If hate speach wasn't bannable, he would a worldwide convicted criminal. Perfect example of what happens when women drink during pregnancy.",
+    "One of the most delusional players in the league of legends playerbase. He challenges the limits of toxicity. If hate speach wasn't bannable, he would a be worldwide convicted criminal. Perfect example of what happens when women drink during pregnancy.",
   Omar: 'Mehdi\'s wet pussy gave birth to this individual(probably on a highway because that\'s where most accidents happen) only to become an Annie main. He later went to invent the phrases "dude this guy" and "where the fuck is my jungler", and became a yone/akshan main. He is the type of guy to type "ez" after losing a game.',
   Ayman:
     "If toxicity and faker had a child, Ayman would be toxicities father. He's generally a chill dude before he gets surprised as to why he died 1v5 in the enemy fountain. That said, you will probably not encounter the likes of Ayman in soloq as he doesn't play that much anymore.",
