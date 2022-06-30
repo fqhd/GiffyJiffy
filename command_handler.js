@@ -4,6 +4,7 @@ import { asciify } from "./asciify.js";
 import { update_leaderboard } from "./leaderboard.js";
 import { lore } from "./lore.js";
 import lolify from "./leagueify.js";
+import askAI from "./askAI"
 
 export const commands_map = {
   gimme,
@@ -11,5 +12,6 @@ export const commands_map = {
   asciify,
   update_leaderboard,
   lore,
-  lolify
+  lolify,
+  askAI
 };
