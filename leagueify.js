@@ -8,7 +8,44 @@ const configuration = new Configuration({
   });
 const openai = new OpenAIApi(configuration);
 
-export default async function lolify(tokens, message, client){
+export async function askGiffy(tokens, message, client){
+	const prompt = `Answer the question ${tokens.join(' ')}`
+
+    message.channel.send(`Preparing an answer for the question: "${tokens.join(' ')}"...`)
+
+    const response = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt,
+        temperature: 1,
+        max_tokens: 1000,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+    });
+
+    const data = response.data
+
+    try {
+        let text = _.trim(data.choices[0].text, "\n\n")
+        let chunks = []
+
+        // Handler for lores with 2000+ characters
+        for (let i = 0; i < text.length; i += 2000) {
+            const chunk = text.slice(i, i + 2000);
+            chunks.push(chunk)
+        }
+    
+        for(let chunk of chunks) {
+            message.channel.send(chunk)
+        }
+
+    } catch (e) {
+        console.error(e)
+        message.channel.send(`Could not make an answer for ${tokens.join(' ')} :(`)
+    }
+}
+
+export async function lolify(tokens, message, client){
 	const prompt = `Write a league of legends lore for ${tokens.join(' ')}`
 
     message.channel.send(`Making some lore for "${tokens.join(' ')}"...`)
