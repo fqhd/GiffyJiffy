@@ -45,7 +45,7 @@ export async function askGiffy(tokens, message, client){
     }
 }
 
-export async function lolify(tokens, message, client){
+export async function lorify(tokens, message, client){
 	const prompt = `Write a league of legends lore for ${tokens.join(' ')}`
 
     message.channel.send(`Making some lore for "${tokens.join(' ')}"...`)
@@ -80,4 +80,9 @@ export async function lolify(tokens, message, client){
         console.error(e)
         message.channel.send(`Could not generate lore for ${tokens.join(' ')} :(`)
     }
+}
+
+export default {
+    lorify,
+    askGiffy
 }
