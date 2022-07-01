@@ -80,7 +80,6 @@ function toMinutes(m){
 }
 
 export async function update_leaderboard(client){
-	//await message.channel.send("Updating leaderboard...");
 	const leaderboardArray = [];
 	let leaderboardString = "Hey everyone, Fahd here. First of all I'd like to wish everyone an awesome summer and good luck to those who still have exams 💪. Lots of updates to the rift recently with the new skins and huge number update. Lots of buffs and nerfs too. And for those still on the grind, keep up the good work!\n\n";
 
@@ -103,11 +102,12 @@ export async function update_leaderboard(client){
 		leaderboardString += `${i+1}) ${leaderboardArray[i].name} ${player.tier} ${player.rank} ${player.lp} LP\n`;
 	}
 
+	leaderboardString += "\nLast Update: " + new Date().toString();
+
 	// Updating the leaderboard message
 	const channel = await client.channels.fetch("831148754181816351");
 	const leaderboard_message = await channel.messages.fetch('984085447997276190');
 	leaderboard_message.edit(leaderboardString);
-	//await message.channel.send("Leaderboard updated :thumbsup:");
 }
 
 function compare(a, b){
