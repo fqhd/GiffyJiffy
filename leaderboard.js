@@ -79,7 +79,9 @@ function toMinutes(m){
 	return m;
 }
 
-export async function update_leaderboard(client){
+export async function update_leaderboard(tokens, message, client){
+	message.channel.send("Updating leaderboard...");
+
 	const leaderboardArray = [];
 	let leaderboardString = "Hey everyone, Fahd here. First of all I'd like to wish everyone an awesome summer and good luck to those who still have exams 💪. Lots of updates to the rift recently with the new skins and huge number update. Lots of buffs and nerfs too. And for those still on the grind, keep up the good work!\n\n";
 
@@ -108,6 +110,8 @@ export async function update_leaderboard(client){
 	const channel = await client.channels.fetch("831148754181816351");
 	const leaderboard_message = await channel.messages.fetch('984085447997276190');
 	leaderboard_message.edit(leaderboardString);
+
+	message.channel.send("Leaderboard Updated :thumbsup:");
 }
 
 function compare(a, b){
